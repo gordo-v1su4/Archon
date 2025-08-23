@@ -15,6 +15,7 @@ import asyncio
 import logging
 import os
 from contextlib import asynccontextmanager
+import traceback
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -120,53 +121,42 @@ async def lifespan(app: FastAPI):
             api_logger.warning(f"Could not initialize prompt service: {e}")
 
         # Set the main event loop for background tasks
-        try:
-            from .services.background_task_manager import get_task_manager
+        from .services.background_task_manager import set_main_event_loop
 
-            task_manager = get_task_manager()
-            current_loop = asyncio.get_running_loop()
-            task_manager.set_main_loop(current_loop)
-            api_logger.info("✅ Main event loop set for background tasks")
-        except Exception as e:
-            api_logger.warning(f"Could not set main event loop: {e}")
+        set_main_event_loop(asyncio.get_event_loop())
 
-        # MCP Client functionality removed from architecture
-        # Agents now use MCP tools directly
+        api_logger.info("🚀 Archon backend startup complete")
 
-        # Mark initialization as complete
-        _initialization_complete = True
-        api_logger.info("🎉 Archon backend started successfully!")
+        yield
 
     except Exception as e:
-        api_logger.error(f"❌ Failed to start backend: {str(e)}")
+        api_logger.error(f"💥 Critical error during startup: {e}")
+        api_logger.error(traceback.format_exc())
         raise
 
-    yield
+    finally:
+        # Shutdown
+        api_logger.info("🛑 Shutting down Archon backend...")
 
-    # Shutdown
-    _initialization_complete = False
-    api_logger.info("🛑 Shutting down Archon backend...")
-
-    try:
-        # MCP Client cleanup not needed
-
-        # Cleanup crawling context
         try:
-            await cleanup_crawler()
+            # Clean up crawler
+            try:
+                await cleanup_crawler()
+                api_logger.info("✅ Crawler cleaned up")
+            except Exception as e:
+                api_logger.warning(f"Could not clean up crawler: {e}")
+
+            # Clean up background task manager
+            try:
+                await cleanup_task_manager()
+                api_logger.info("✅ Background task manager cleaned up")
+            except Exception as e:
+                api_logger.warning(f"Could not clean up background task manager: {e}")
+
         except Exception as e:
-            api_logger.warning("Could not cleanup crawling context", error=str(e))
+            api_logger.error(f"Error during shutdown: {e}")
 
-        # Cleanup background task manager
-        try:
-            await cleanup_task_manager()
-            api_logger.info("Background task manager cleaned up")
-        except Exception as e:
-            api_logger.warning("Could not cleanup background task manager", error=str(e))
-
-        api_logger.info("✅ Cleanup completed")
-
-    except Exception as e:
-        api_logger.error(f"❌ Error during shutdown: {str(e)}")
+        api_logger.info("✅ Archon backend shutdown complete")
 
 
 # Create FastAPI application

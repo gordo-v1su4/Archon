@@ -1,0 +1,37 @@
+name: Simple Coolify Deploy
+
+# This is a simpler version that just triggers Coolify to rebuild from your repository
+# Use this if you want Coolify to handle the building instead of GitHub Actions
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  trigger-coolify-deploy:
+    runs-on: ubuntu-latest
+    environment: production  # Use the environment we created
+    
+    steps:
+      - name: Trigger Coolify Deployment
+        run: |
+          # Coolify will pull from your repository and rebuild
+          curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "branch": "${{ github.ref_name }}",
+              "commit": "${{ github.sha }}",
+              "repository": "${{ github.repository }}",
+              "trigger": "github_push"
+            }'
+      
+      - name: Wait for deployment to start
+        run: sleep 10
+      
+      - name: Check deployment status
+        run: |
+          echo "Deployment triggered for commit ${{ github.sha }}"
+          echo "Check Coolify dashboard for deployment progress"
