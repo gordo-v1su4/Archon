@@ -277,3 +277,11 @@ When connected to Cursor/Windsurf:
 - Frontend uses Vite proxy for API calls in development
 - Python backend uses `uv` for dependency management
 - Docker Compose handles service orchestration
+
+## Coolify Deployment Requirements
+
+**CRITICAL**: When deploying to Coolify:
+- **Always use `.yaml` extension**, never `.yml` - Coolify specifically requires `docker-compose.yaml`
+- The main compose file must be named `docker-compose.yaml` (not `docker-compose.yml`)
+- Environment variables should be configured in Coolify's dashboard, not in `.env` files
+- Webhook URL goes in GitHub Secrets as `COOLIFY_WEBHOOK_URL`, not in GitHub Webhooks
