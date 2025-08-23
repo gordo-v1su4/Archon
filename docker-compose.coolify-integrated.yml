@@ -1,0 +1,145 @@
+version: '3.8'
+
+# Add these Archon services to your existing Supabase stack
+services:
+  # Archon Server Service (FastAPI + Socket.IO + Crawling)
+  archon-server:
+    build:
+      context: ./python
+      dockerfile: Dockerfile.server
+    container_name: archon-server
+    ports:
+      - "8181:8181"
+    environment:
+      # Use your existing Supabase database
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      # Optional: Direct PostgreSQL connection (alternative)
+      # - DATABASE_URL=postgresql://postgres:${SERVICE_PASSWORD_POSTGRES}@supabase-db:5432/postgres
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=INFO
+      - ARCHON_SERVER_PORT=8181
+      - ARCHON_MCP_PORT=8051
+      - ARCHON_AGENTS_PORT=8052
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      supabase-kong:
+        condition: service_started
+    networks:
+      - default
+
+  # Archon MCP Server Service
+  archon-mcp:
+    build:
+      context: ./python
+      dockerfile: Dockerfile.mcp
+    container_name: archon-mcp
+    ports:
+      - "8051:8051"
+    environment:
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - API_SERVICE_URL=http://archon-server:8181
+      - AGENTS_SERVICE_URL=http://archon-agents:8052
+      - ARCHON_MCP_PORT=8051
+    depends_on:
+      - archon-server
+      - archon-agents
+      - supabase-kong
+    networks:
+      - default
+
+  # Archon Agents Service
+  archon-agents:
+    build:
+      context: ./python
+      dockerfile: Dockerfile.agents
+    container_name: archon-agents
+    ports:
+      - "8052:8052"
+    environment:
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LOG_LEVEL=INFO
+      - ARCHON_AGENTS_PORT=8052
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      supabase-kong:
+        condition: service_started
+    networks:
+      - default
+
+  # Archon Frontend UI
+  archon-frontend:
+    build: ./archon-ui-main
+    container_name: archon-ui
+    ports:
+      - "3737:3737"
+    environment:
+      - VITE_API_URL=http://localhost:8181
+      - VITE_ARCHON_SERVER_PORT=8181
+      - ARCHON_SERVER_PORT=8181
+      - HOST=localhost
+    depends_on:
+      - archon-server
+    networks:
+      - default
+
+# Add Kong routes for Archon services (add to your existing kong.yml)
+# You'll need to add these routes to your existing Kong configuration:
+
+# Archon API routes
+# - name: archon-api
+#   url: http://archon-server:8181
+#   routes:
+#     - name: archon-api-all
+#       strip_path: true
+#       paths:
+#         - /archon/api/
+#   plugins:
+#     - name: cors
+#     - name: key-auth
+#       config:
+#         hide_credentials: true
+#     - name: acl
+#       config:
+#         hide_groups_header: true
+#         allow:
+#           - admin
+#           - anon
+
+# Archon MCP routes
+# - name: archon-mcp
+#   url: http://archon-mcp:8051
+#   routes:
+#     - name: archon-mcp-all
+#       strip_path: true
+#       paths:
+#         - /archon/mcp/
+#   plugins:
+#     - name: cors
+
+# Archon Agents routes
+# - name: archon-agents
+#   url: http://archon-agents:8052
+#   routes:
+#     - name: archon-agents-all
+#       strip_path: true
+#       paths:
+#         - /archon/agents/
+#   plugins:
+#     - name: cors
+#     - name: key-auth
+#       config:
+#         hide_credentials: true
+#     - name: acl
+#       config:
+#         hide_groups_header: true
+#         allow:
+#           - admin
+#           - anon
