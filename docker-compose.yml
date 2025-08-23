@@ -101,8 +101,8 @@ services:
   # Archon Frontend UI
   archon-frontend:
     build:
-      context: .
-      dockerfile: archon-ui-main/Dockerfile
+      context: ./archon-ui-main
+      dockerfile: Dockerfile
     container_name: archon-ui
     ports:
       - "3737:3737"
