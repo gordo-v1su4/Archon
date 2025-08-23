@@ -31,8 +31,8 @@ services:
   # Archon Server Service (FastAPI + Socket.IO + Crawling)
   archon-server:
     build:
-      context: ./python
-      dockerfile: Dockerfile.server
+      context: .
+      dockerfile: python/Dockerfile.server
     container_name: archon-server
     ports:
       - "8181:8181"
@@ -58,8 +58,8 @@ services:
   # Archon MCP Server Service
   archon-mcp:
     build:
-      context: ./python
-      dockerfile: Dockerfile.mcp
+      context: .
+      dockerfile: python/Dockerfile.mcp
     container_name: archon-mcp
     ports:
       - "8051:8051"
@@ -79,8 +79,8 @@ services:
   # Archon Agents Service
   archon-agents:
     build:
-      context: ./python
-      dockerfile: Dockerfile.agents
+      context: .
+      dockerfile: python/Dockerfile.agents
     container_name: archon-agents
     ports:
       - "8052:8052"
@@ -100,7 +100,9 @@ services:
 
   # Archon Frontend UI
   archon-frontend:
-    build: ./archon-ui-main
+    build:
+      context: .
+      dockerfile: archon-ui-main/Dockerfile
     container_name: archon-ui
     ports:
       - "3737:3737"
