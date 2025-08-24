@@ -38,7 +38,7 @@ Use this `docker-compose.yaml`:
 ```yaml
 services:
   archon-server:
-    image: gordov1su4/archon-server:v3.0
+    image: gordov1su4/archon-server:v4.0
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
@@ -130,7 +130,7 @@ Make sure these ports are exposed in Coolify:
 ## Docker Images
 
 All images are public on Docker Hub:
-- `gordov1su4/archon-server:v3.0` - Fixed Python error
+- `gordov1su4/archon-server:v4.0` - Fixed all Python errors
 - `gordov1su4/archon-agents:v2.0`
 - `gordov1su4/archon-mcp:v2.0`
 - `gordov1su4/archon-frontend:v2.0`
