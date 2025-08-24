@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Archon Server Service (FastAPI + Socket.IO + Crawling)
   archon-server:
-    image: gordov1su4/archon-server:latest
+    image: gordov1su4/archon-server:v1.0
     container_name: archon-server
     ports:
       - "8181:8181"
@@ -30,7 +30,7 @@ services:
 
   # Archon MCP Server Service
   archon-mcp:
-    image: gordov1su4/archon-mcp:latest
+    image: gordov1su4/archon-mcp:v1.0
     container_name: archon-mcp
     ports:
       - "8051:8051"
@@ -55,7 +55,7 @@ services:
 
   # Archon Agents Service
   archon-agents:
-    image: gordov1su4/archon-agents:latest
+    image: gordov1su4/archon-agents:v1.0
     container_name: archon-agents
     ports:
       - "8052:8052"
@@ -77,7 +77,7 @@ services:
 
   # Archon Frontend UI
   archon-frontend:
-    image: gordov1su4/archon-frontend:latest
+    image: gordov1su4/archon-frontend:v1.0
     container_name: archon-ui
     ports:
       - "3737:3737"
