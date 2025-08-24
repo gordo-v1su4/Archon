@@ -125,6 +125,8 @@ async def lifespan(app: FastAPI):
 
         background_task_manager.set_main_loop(asyncio.get_event_loop())
 
+        # Mark initialization as complete
+        _initialization_complete = True
         api_logger.info("🚀 Archon backend startup complete")
 
         yield

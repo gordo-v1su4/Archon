@@ -237,6 +237,9 @@ class BackgroundTaskManager:
 # Global instance
 _task_manager: BackgroundTaskManager | None = None
 
+# Create a default instance for backward compatibility
+background_task_manager = BackgroundTaskManager()
+
 
 def get_task_manager() -> BackgroundTaskManager:
     """Get or create the global task manager instance"""
