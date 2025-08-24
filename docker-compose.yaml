@@ -27,7 +27,7 @@ services:
       - archon-agents
   
   archon-agents:
-    image: gordov1su4/archon-agents:v2.0
+    image: gordov1su4/archon-agents:v2.1
     ports:
       - "8052:8052"
     environment:
@@ -41,7 +41,7 @@ services:
   archon-frontend:
     image: gordov1su4/archon-frontend:v2.0
     ports:
-      - "3737:80"
+      - "3737:3737"
     environment:
       - VITE_API_URL=${VITE_API_URL:-https://archon.v1su4.com:8181}
       - VITE_ARCHON_SERVER_PORT=8181
