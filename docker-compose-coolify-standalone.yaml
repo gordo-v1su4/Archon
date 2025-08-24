@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # Archon Server Service (FastAPI + Socket.IO + Crawling)
   archon-server:
@@ -6,10 +8,10 @@ services:
     ports:
       - "8181:8181"
     environment:
-      # Use your existing Supabase database
+      # Replace these with your actual values in Coolify
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - LOG_LEVEL=INFO
       - ARCHON_SERVER_PORT=8181
       - ARCHON_MCP_PORT=8051
@@ -17,8 +19,14 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - default
+      - archon-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8181/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Archon MCP Server Service
   archon-mcp:
@@ -36,8 +44,14 @@ services:
       - archon-server
       - archon-agents
     networks:
-      - default
+      - archon-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8051/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Archon Agents Service
   archon-agents:
@@ -48,12 +62,18 @@ services:
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - LOG_LEVEL=INFO
       - ARCHON_AGENTS_PORT=8052
     networks:
-      - default
+      - archon-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8052/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Archon Frontend UI
   archon-frontend:
@@ -62,15 +82,26 @@ services:
     ports:
       - "3737:3737"
     environment:
-      - VITE_API_URL=http://localhost:8181
+      # Update these for your domain
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8181}
       - VITE_ARCHON_SERVER_PORT=8181
       - ARCHON_SERVER_PORT=8181
-      - HOST=localhost
+      - HOST=0.0.0.0
     depends_on:
       - archon-server
     networks:
-      - default
+      - archon-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3737"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
 networks:
-  default:
+  archon-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
