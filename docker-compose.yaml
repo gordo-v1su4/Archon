@@ -1,6 +1,6 @@
 services:
   archon-server:
-    image: gordov1su4/archon-server:v4.0
+    image: gordov1su4/archon-server:v5.0
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
