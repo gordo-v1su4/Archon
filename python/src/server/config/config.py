@@ -22,8 +22,8 @@ class EnvironmentConfig:
 
     supabase_url: str
     supabase_service_key: str
+    port: int  # Required - no default (moved before fields with defaults)
     database_url: str | None = None  # New field for direct PostgreSQL connection
-    port: int  # Required - no default
     openai_api_key: str | None = None
     host: str = "0.0.0.0"
     transport: str = "sse"
