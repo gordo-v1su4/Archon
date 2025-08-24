@@ -20,9 +20,21 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install runtime dependencies for Playwright (minimal set)
-RUN apt-get update && apt-get install -y \
-    wget \
+# Fix potential dpkg issues first
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     ca-certificates \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install shared-mime-info separately to avoid conflicts
+RUN apt-get update && \
+    mkdir -p /usr/share/man/man1 && \
+    apt-get install -y --no-install-recommends shared-mime-info && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install remaining dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-liberation \
     libasound2 \
     libatk-bridge2.0-0 \
