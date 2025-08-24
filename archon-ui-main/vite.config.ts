@@ -280,6 +280,10 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       host: '0.0.0.0', // Listen on all network interfaces with explicit IP
       port: parseInt(process.env.ARCHON_UI_PORT || env.ARCHON_UI_PORT || '3737'), // Use configurable port
       strictPort: true, // Exit if port is in use
+      // Allow specific hosts to connect
+      hmr: {
+        host: 'archon.v1su4.com'
+      },
       proxy: {
         '/api': {
           target: `http://${host}:${port}`,
