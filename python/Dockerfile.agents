@@ -1,11 +1,30 @@
 # Agents Service - Lightweight PydanticAI agents ONLY (no ML models)
+
+# Build stage to handle dependency installation
+FROM python:3.11 AS builder
+
+WORKDIR /build
+
+# Install build dependencies that might be needed
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy and install Python dependencies with more memory allocation
+COPY requirements.agents.txt .
+RUN pip install --user --no-cache-dir --no-deps -r requirements.agents.txt && \
+    pip install --user --no-cache-dir -r requirements.agents.txt
+
+# Runtime stage
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install dependencies
-COPY requirements.agents.txt .
-RUN pip install --no-cache-dir -r requirements.agents.txt
+# Copy Python packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Set PATH to include user packages
+ENV PATH=/root/.local/bin:$PATH
 
 # Copy ONLY agents code - no dependencies on server code
 # Agents use MCP tools for all operations
