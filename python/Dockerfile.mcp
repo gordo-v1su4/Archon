@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
 
 # Copy and install Python dependencies
 COPY requirements.mcp.txt .
-RUN pip install --user --no-cache-dir -r requirements.mcp.txt
+RUN pip install --user --no-cache-dir --upgrade pip setuptools wheel && \
+    pip install --user --no-cache-dir -r requirements.mcp.txt
 
 # Runtime stage
 FROM python:3.11-slim
