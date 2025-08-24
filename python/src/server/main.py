@@ -121,9 +121,9 @@ async def lifespan(app: FastAPI):
             api_logger.warning(f"Could not initialize prompt service: {e}")
 
         # Set the main event loop for background tasks
-        from .services.background_task_manager import set_main_event_loop
+        from .services.background_task_manager import background_task_manager
 
-        set_main_event_loop(asyncio.get_event_loop())
+        background_task_manager.set_main_loop(asyncio.get_event_loop())
 
         api_logger.info("🚀 Archon backend startup complete")
 
