@@ -1,6 +1,6 @@
 services:
   archon-frontend:
-    image: gordov1su4/archon-frontend:v2.2
+    image: gordov1su4/archon-frontend:v2.3
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - ARCHON_MCP_PORT=${ARCHON_MCP_PORT:-443}

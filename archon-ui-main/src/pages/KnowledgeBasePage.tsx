@@ -1,16 +1,14 @@
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Search, Grid, Plus, Upload, Link as LinkIcon, Brain, Filter, BoxIcon, List, BookOpen, CheckSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select';
 import { Badge } from '../components/ui/Badge';
 import { GlassCrawlDepthSelector } from '../components/ui/GlassCrawlDepthSelector';
 import { useStaggeredEntrance } from '../hooks/useStaggeredEntrance';
 import { useToast } from '../contexts/ToastContext';
 import { knowledgeBaseService, KnowledgeItem, KnowledgeItemMetadata } from '../services/knowledgeBaseService';
-import { knowledgeSocketIO } from '../services/socketIOService';
 import { CrawlingProgressCard } from '../components/knowledge-base/CrawlingProgressCard';
 import { CrawlProgressData, crawlProgressService } from '../services/crawlProgressService';
 import { WebSocketState } from '../services/socketIOService';
@@ -20,26 +18,7 @@ import { GroupedKnowledgeItemCard } from '../components/knowledge-base/GroupedKn
 import { KnowledgeGridSkeleton, KnowledgeTableSkeleton } from '../components/knowledge-base/KnowledgeItemSkeleton';
 import { GroupCreationModal } from '../components/knowledge-base/GroupCreationModal';
 
-const extractDomain = (url: string): string => {
-  try {
-    const urlObj = new URL(url);
-    const hostname = urlObj.hostname;
-    
-    // Remove 'www.' prefix if present
-    const withoutWww = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
-    
-    // For domains with subdomains, extract the main domain (last 2 parts)
-    const parts = withoutWww.split('.');
-    if (parts.length > 2) {
-      // Return the main domain (last 2 parts: domain.tld)
-      return parts.slice(-2).join('.');
-    }
-    
-    return withoutWww;
-  } catch {
-    return url; // Return original if URL parsing fails
-  }
-};
+// Removed unused extractDomain function
 
 interface GroupedKnowledgeItem {
   id: string;
@@ -62,8 +41,8 @@ export const KnowledgeBasePage = () => {
   const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>([]);
   const [progressItems, setProgressItems] = useState<CrawlProgressData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);
+  // Removed unused totalItems state
+  const currentPage = 1; // Changed to constant since setCurrentPage is unused
   
   // Selection state
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -89,7 +68,7 @@ export const KnowledgeBasePage = () => {
       console.log(`📊 API request completed in ${loadTime}ms, loaded ${response.items.length} items`);
       
       setKnowledgeItems(response.items);
-      setTotalItems(response.total);
+      // Removed setTotalItems since the state is not used
     } catch (error) {
       console.error('Failed to load knowledge items:', error);
       showToast('Failed to load knowledge items', 'error');
@@ -433,7 +412,6 @@ export const KnowledgeBasePage = () => {
           currentStep: 'Starting refresh...',
           logs: ['Starting refresh for ' + item.url],
           uploadType: 'crawl', // Use valid property from CrawlProgressData
-          currentStep: 'starting',
           // Remove startTime which is not in the type definition
         };
         

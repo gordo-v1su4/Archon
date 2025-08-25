@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Key, Plus, Trash2, Save, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
-import { Input } from '../ui/Input';
+import { Plus, Trash2, Save, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
+// Removed unused Input import
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
-import { credentialsService, Credential } from '../../services/credentialsService';
+import { credentialsService } from '../../services/credentialsService';
 import { useToast } from '../../contexts/ToastContext';
 
 interface CustomCredential {
