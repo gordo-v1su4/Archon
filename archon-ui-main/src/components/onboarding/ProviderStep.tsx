@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent } from "react";
 import { Key, ExternalLink, Save, Loader } from "lucide-react";
 import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
@@ -91,7 +91,7 @@ export const ProviderStep = ({ onSaved, onSkip }: ProviderStepProps) => {
         <Select
           label="Select AI Provider"
           value={provider}
-          onChange={(e) => setProvider(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLSelectElement>) => setProvider(e.target.value)}
           options={[
             { value: "openai", label: "OpenAI" },
             { value: "google", label: "Google Gemini" },
@@ -111,13 +111,21 @@ export const ProviderStep = ({ onSaved, onSkip }: ProviderStepProps) => {
 
       {/* OpenAI API Key Input */}
       {provider === "openai" && (
-        <>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSave();
+          }}
+          autoComplete="on"
+        >
           <div>
             <Input
               label="OpenAI API Key"
               type="password"
+              name="openai-api-key"
+              autoComplete="new-password"
               value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setApiKey(e.target.value)}
               placeholder="sk-..."
               accentColor="green"
               icon={<Key className="w-4 h-4" />}
@@ -141,9 +149,9 @@ export const ProviderStep = ({ onSaved, onSkip }: ProviderStepProps) => {
 
           <div className="flex gap-3 pt-4">
             <Button
+              type="submit"
               variant="primary"
               size="lg"
-              onClick={handleSave}
               disabled={saving || !apiKey.trim()}
               icon={
                 saving ? (
@@ -157,6 +165,7 @@ export const ProviderStep = ({ onSaved, onSkip }: ProviderStepProps) => {
               {saving ? "Saving..." : "Save & Continue"}
             </Button>
             <Button
+              type="button"
               variant="outline"
               size="lg"
               onClick={handleSkip}
@@ -166,7 +175,7 @@ export const ProviderStep = ({ onSaved, onSkip }: ProviderStepProps) => {
               Skip for Now
             </Button>
           </div>
-        </>
+        </form>
       )}
 
       {/* Non-OpenAI Provider Message */}

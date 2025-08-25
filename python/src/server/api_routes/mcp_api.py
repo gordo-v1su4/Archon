@@ -14,8 +14,16 @@ from collections import deque
 from datetime import datetime
 from typing import Any
 
-import docker
-from docker.errors import APIError, NotFound
+# Docker SDK may not be installed in local IDE env; guard the import for editors.
+try:
+    import docker  # type: ignore
+    from docker.errors import APIError, NotFound  # type: ignore
+except Exception:  # pragma: no cover - editor convenience
+    docker = None  # type: ignore
+    class APIError(Exception):
+        pass
+    class NotFound(Exception):
+        pass
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel
 
@@ -63,19 +71,53 @@ class MCPServerManager:
         self._initialize_docker_client()
 
     def _resolve_container(self):
-        """Simple container resolution - just use fixed name."""
+        """Resolve the MCP container allowing Coolify/Compose suffixes.
+
+        Resolution order:
+        1) Exact name from MCP_CONTAINER_NAME env
+        2) First container whose name startswith MCP_CONTAINER_PREFIX (default: "archon-mcp")
+        3) Fallback to exact "archon-mcp" lookup
+        """
         if not self.docker_client:
             return None
-        
+
+        import os
+
+        exact_name = os.getenv("MCP_CONTAINER_NAME")
+        prefix = os.getenv("MCP_CONTAINER_PREFIX", "archon-mcp")
+
+        # 1) Exact name override
+        if exact_name:
+            try:
+                container = self.docker_client.containers.get(exact_name)
+                self.container_name = exact_name
+                mcp_logger.info(f"Found MCP container by exact name: {exact_name}")
+                return container
+            except NotFound:
+                mcp_logger.warning(f"Exact MCP container not found: {exact_name}")
+
+        # 2) Prefix search (handles Coolify's suffixed names)
         try:
-            # Simple: Just look for the fixed container name
+            for c in self.docker_client.containers.list(all=True):
+                # Container names list includes leading '/'
+                names = getattr(c, "name", None) or ",".join(getattr(c, "names", []) or [])
+                name = c.name if hasattr(c, "name") else (c.names[0].lstrip("/") if c.names else "")
+                if name.startswith(prefix):
+                    self.container_name = name
+                    mcp_logger.info(f"Found MCP container by prefix '{prefix}': {name}")
+                    return c
+        except Exception as e:
+            mcp_logger.error(f"Error while scanning containers for prefix '{prefix}': {e}")
+
+        # 3) Fallback to fixed name
+        try:
             container = self.docker_client.containers.get("archon-mcp")
             self.container_name = "archon-mcp"
-            mcp_logger.info("Found MCP container")
+            mcp_logger.info("Found MCP container by fallback name 'archon-mcp'")
             return container
         except NotFound:
-            mcp_logger.warning("MCP container not found - is it running?")
-            self.container_name = "archon-mcp"
+            mcp_logger.warning("MCP container not found using any strategy")
+            self.container_name = prefix
             return None
 
     def _initialize_docker_client(self):
