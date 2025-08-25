@@ -1,0 +1,115 @@
+# Archon Maintenance Guide
+
+This guide provides information about maintaining and updating the Archon codebase, including common issues and best practices.
+
+## Architecture Overview
+
+Archon uses a microservices architecture with several key components:
+
+- **Frontend UI (archon-frontend)**: React + Vite application providing the user interface
+- **Server (archon-server)**: Core API and business logic
+- **MCP Server (archon-mcp)**: Protocol interface for AI clients 
+- **Agents Service (archon-agents)**: AI operations and streaming
+
+## Docker Image Versioning
+
+The Docker images for Archon services are versioned and published to Docker Hub. When updating the `docker-compose.yaml` file, ensure you're using the correct versions:
+
+```yaml
+services:
+  archon-frontend:
+    image: gordov1su4/archon-frontend:v2.1
+    # ...
+  
+  archon-server:
+    image: gordov1su4/archon-server:v6.1
+    # ...
+  
+  archon-mcp:
+    image: gordov1su4/archon-mcp:v2.0
+    # ...
+  
+  archon-agents:
+    image: gordov1su4/archon-agents:v2.1
+    # ...
+```
+
+## Common Issues and Solutions
+
+### 1. Socket.IO Connection Management
+
+The Archon UI uses Socket.IO for real-time updates. It's important to properly manage Socket.IO connections to prevent errors.
+
+**Best Practice**: When cleaning up Socket.IO connections in component unmount handlers, use `stopAllStreams()` instead of `disconnect()` to avoid interfering with connections used by other components:
+
+```tsx
+// GOOD: Only stops streams for this component, preserves the shared connection
+useEffect(() => {
+  // Setup code...
+  return () => {
+    crawlProgressService.stopAllStreams();
+  };
+}, []);
+
+// BAD: May disconnect the shared connection used by other components
+useEffect(() => {
+  // Setup code...
+  return () => {
+    crawlProgressService.disconnect();
+  };
+}, []);
+```
+
+### 2. Form Elements for Password Fields
+
+Password fields should always be wrapped in `<form>` elements to prevent browser warnings and ensure proper behavior with password managers.
+
+**Best Practice**: Always wrap password inputs in a form element, even if you're not using traditional form submission:
+
+```tsx
+<form onSubmit={(e) => e.preventDefault()}>
+  <input 
+    type="password"
+    name="credential-password"
+    autoComplete="off"
+    // other props...
+  />
+</form>
+```
+
+### 3. TypeScript Type Issues
+
+When working with responses from API calls, make sure to properly type the responses to avoid TypeScript errors.
+
+**Best Practice**: Use proper typing for API responses and handle cases where the response might be different than expected:
+
+```tsx
+// Define proper interface for the response
+interface RefreshResponse {
+  progressId: string;
+  success: boolean;
+  message?: string;
+}
+
+// Type assertion or proper handling
+const response = await knowledgeBaseService.refreshKnowledgeItem(sourceId) as RefreshResponse;
+
+// Or use type guards
+if ('progressId' in response) {
+  // Handle case where progressId exists
+}
+```
+
+## Project History
+
+Archon has evolved from its original version (a Streamlit-based AI agent builder) to the current version (a React-based knowledge management system with MCP server capabilities). 
+
+The original codebase is archived in the `original_archon/` directory, while the current version uses a more modern architecture with React, TypeScript, and microservices.
+
+## Documentation Structure
+
+- **docs/docs/**: Contains the main documentation for Archon
+- **PRPs/**: Contains Project Requirements Proposals templates
+- **archon-ui-main/docs/**: Contains frontend-specific documentation
+
+Keep documentation up-to-date as the codebase evolves to ensure everyone has access to accurate information.

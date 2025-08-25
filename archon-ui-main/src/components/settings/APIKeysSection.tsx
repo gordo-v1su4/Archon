@@ -219,9 +219,10 @@ export const APIKeysSection = () => {
 
             {/* Credential rows */}
             {customCredentials.map((cred, index) => (
-              <div 
-                key={index} 
+              <form
+                key={index}
                 className="grid grid-cols-[240px_1fr_40px] gap-4 items-center"
+                onSubmit={(e) => e.preventDefault()}
               >
                 {/* Key name column */}
                 <div className="flex items-center">
@@ -243,6 +244,8 @@ export const APIKeysSection = () => {
                       onChange={(e) => updateCredential(index, 'value', e.target.value)}
                       placeholder={cred.is_encrypted && !cred.value ? 'Enter new value (encrypted)' : 'Enter value'}
                       className="w-full px-3 py-2 pr-20 rounded-md bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-sm"
+                      name={`credential-${index}`}
+                      autoComplete="off"
                     />
                     
                     {/* Show/Hide value button */}
@@ -291,7 +294,7 @@ export const APIKeysSection = () => {
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
+              </form>
             ))}
           </div>
 

@@ -63,6 +63,7 @@ module.exports = {
       items: [
         'ui',
         'server-monitoring',
+        'maintenance-guide',
       ],
     },
   ],

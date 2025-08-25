@@ -108,8 +108,8 @@ export const KnowledgeBasePage = () => {
     
     return () => {
       console.log('🧹 KnowledgeBasePage: Cleaning up');
-      // Cleanup all crawl progress connections on unmount
-      crawlProgressService.disconnect();
+      // Cleanup all crawl progress streams but keep the shared Socket.IO connection
+      crawlProgressService.stopAllStreams();
     };
   }, []); // Only run once on mount
 
