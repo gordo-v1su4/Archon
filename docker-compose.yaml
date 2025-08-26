@@ -37,7 +37,7 @@ services:
       - traefik.http.services.archon-server.loadbalancer.server.port=8181
 
   archon-mcp:
-    image: gordov1su4/archon-mcp:v2.0
+    image: gordov1su4/archon-mcp:v2.1
     container_name: archon-mcp
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
@@ -53,10 +53,14 @@ services:
     restart: unless-stopped
     labels:
       - traefik.enable=true
-      - traefik.http.routers.archon-mcp.rule=Host(`archon.v1su4.com`) && PathPrefix(`/mcp`)
+      # Route both /mcp and /mcp/sse to the MCP server
+      - traefik.http.routers.archon-mcp.rule=Host(`archon.v1su4.com`) && (PathPrefix(`/mcp`) || Path(`/mcp/sse`))
       - traefik.http.routers.archon-mcp.entryPoints=https
       - traefik.http.routers.archon-mcp.tls=true
       - traefik.http.routers.archon-mcp.tls.certresolver=letsencrypt
+      # Strip /mcp prefix so /mcp/sse becomes /sse at the container
+      - traefik.http.middlewares.archon-mcp-strip.stripprefix.prefixes=/mcp
+      - traefik.http.routers.archon-mcp.middlewares=archon-mcp-strip
       - traefik.http.services.archon-mcp.loadbalancer.server.port=8051
 
   archon-agents:

@@ -511,7 +511,13 @@ def main():
         mcp_logger.info("🔥 Logfire initialized for MCP server")
         mcp_logger.info(f"🌟 Starting MCP server - host={server_host}, port={server_port}")
 
-        mcp.run(transport="streamable-http")
+        # Run with streamable-http transport at /sse endpoint
+        mcp.run(
+            transport="streamable-http",
+            path="/sse",
+            server_host=server_host,
+            server_port=server_port
+        )
 
     except Exception as e:
         mcp_logger.error(f"💥 Fatal error in main - error={str(e)}, error_type={type(e).__name__}")
