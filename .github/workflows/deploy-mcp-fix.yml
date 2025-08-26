@@ -27,7 +27,7 @@ jobs:
           file: ./python/Dockerfile.mcp
           push: true
           tags: |
-            gordov1su4/archon-mcp:v2.1
+            gordov1su4/archon-mcp:v2.2
             gordov1su4/archon-mcp:latest
           platforms: linux/amd64
           cache-from: type=gha
