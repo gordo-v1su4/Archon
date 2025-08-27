@@ -1,30 +1,37 @@
-# Vite dev server container (Debian base for esbuild stability)
-FROM node:20-slim
+# Frontend production image: build with Vite and serve static assets
 
+# 1) Builder stage
+FROM node:20-slim AS builder
 WORKDIR /app
 
-# Install system dependencies needed for some npm packages and esbuild
+# Install system dependencies needed by some npm packages
 RUN apt-get update && apt-get install -y \
     python3 make g++ git curl \
   && rm -rf /var/lib/apt/lists/*
 
-# Set Node memory headroom to reduce OOM/panic risk during esbuild pre-bundle
+# Provide extra memory headroom for esbuild during pre-bundle
 ENV NODE_OPTIONS=--max-old-space-size=2048
 
-# Copy package files
+# Copy package files and install deps
 COPY package*.json ./
-
-# Install dependencies including dev dependencies for testing
 RUN npm ci --no-audit --no-fund
 
-# Create coverage directory with proper permissions
-RUN mkdir -p /app/coverage && chmod 777 /app/coverage
-
-# Copy source code
+# Copy source and build
 COPY . .
+RUN npm run build
 
-# Expose the port configured in package.json (3737)
+# 2) Runtime stage - serve static build with a tiny HTTP server
+FROM node:20-slim AS runner
+WORKDIR /app
+
+# Install a static file server
+RUN npm install -g serve
+
+# Copy built assets only
+COPY --from=builder /app/dist ./dist
+
+# Expose UI port
 EXPOSE 3737
 
-# Start Vite dev server (already configured with --port 3737 --host in package.json)
-CMD ["npm", "run", "dev"]
+# Serve the built app (SPA fallback enabled by -s)
+CMD ["serve", "-s", "dist", "-l", "3737"]
