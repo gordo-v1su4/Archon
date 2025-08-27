@@ -1,16 +1,21 @@
-# Simple Vite dev server setup
-FROM node:18-alpine
+# Vite dev server container (Debian base for esbuild stability)
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install system dependencies needed for some npm packages
-RUN apk add --no-cache python3 make g++ git curl
+# Install system dependencies needed for some npm packages and esbuild
+RUN apt-get update && apt-get install -y \
+    python3 make g++ git curl \
+  && rm -rf /var/lib/apt/lists/*
+
+# Set Node memory headroom to reduce OOM/panic risk during esbuild pre-bundle
+ENV NODE_OPTIONS=--max-old-space-size=2048
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies including dev dependencies for testing
-RUN npm ci
+RUN npm ci --no-audit --no-fund
 
 # Create coverage directory with proper permissions
 RUN mkdir -p /app/coverage && chmod 777 /app/coverage

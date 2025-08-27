@@ -1,6 +1,6 @@
 services:
   archon-frontend:
-    image: gordov1su4/archon-frontend:v2.3
+    image: gordov1su4/archon-frontend:v2.6
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - ARCHON_MCP_PORT=${ARCHON_MCP_PORT:-443}
@@ -37,7 +37,7 @@ services:
       - traefik.http.services.archon-server.loadbalancer.server.port=8181
 
   archon-mcp:
-    image: gordov1su4/archon-mcp:v2.3
+    image: gordov1su4/archon-mcp:v2.6
     container_name: archon-mcp
     environment:
       - SUPABASE_URL=${SUPABASE_URL}

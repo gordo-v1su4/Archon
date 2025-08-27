@@ -270,11 +270,11 @@ try:
 
     mcp = FastMCP(
         "archon-mcp-server",
-        description="MCP server for Archon - uses HTTP calls to other services",
         instructions=MCP_INSTRUCTIONS,
         lifespan=lifespan,
         host=server_host,
         port=server_port,
+        streamable_http_path="/"
     )
     logger.info("✓ FastMCP server instance created successfully")
 
@@ -511,12 +511,9 @@ def main():
         mcp_logger.info("🔥 Logfire initialized for MCP server")
         mcp_logger.info(f"🌟 Starting MCP server - host={server_host}, port={server_port}")
 
-        # Run with streamable-http transport at /sse endpoint
+        # Run with streamable-http transport (constructor controls host/port and paths)
         mcp.run(
-            transport="streamable-http",
-            path="/sse",
-            server_host=server_host,
-            server_port=server_port
+            transport="streamable-http"
         )
 
     except Exception as e:

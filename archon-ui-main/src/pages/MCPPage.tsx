@@ -197,13 +197,30 @@ export const MCPPage = () => {
     showToast('Configuration copied to clipboard', 'success');
   };
 
+  // Resolve the recommended MCP URL to display in IDE examples
+  const resolveMcpUrl = () => {
+    try {
+      const origin = window?.location?.origin;
+      if (origin && !origin.includes('localhost')) {
+        // Use the current domain in production (Coolify/Traefik preserves /mcp)
+        return `${origin}/mcp`;
+      }
+    } catch (_) {
+      // no-op, fall back to config below
+    }
+    if (config?.host && config?.port) {
+      const protocol = config.port === 443 ? 'https' : 'http';
+      return `${protocol}://${config.host}:${config.port}/mcp`;
+    }
+    return 'http://localhost:8051/mcp';
+  };
+
   const generateCursorDeeplink = () => {
     if (!config) return '';
-    
+    const mcpUrl = resolveMcpUrl();
     const httpConfig = {
-      url: `http://${config.host}:${config.port}/mcp`
+      url: mcpUrl
     };
-    
     const configString = JSON.stringify(httpConfig);
     const base64Config = btoa(configString);
     return `cursor://anysphere.cursor-deeplink/mcp/install?name=archon&config=${base64Config}`;
@@ -222,7 +239,7 @@ export const MCPPage = () => {
       return '// Configuration not available. Please ensure the server is running.';
     }
     
-    const mcpUrl = `http://${config.host}:${config.port}/mcp`;
+    const mcpUrl = resolveMcpUrl();
     
     switch(ide) {
       case 'claudecode':
@@ -303,7 +320,7 @@ export const MCPPage = () => {
           title: 'Claude Code Configuration',
           steps: [
             '1. Open a terminal and run the following command:',
-            `2. claude mcp add --transport http archon http://${config?.host}:${config?.port}/mcp`,
+            `2. claude mcp add --transport http archon ${resolveMcpUrl()}`,
             '3. The connection will be established automatically'
           ]
         };
