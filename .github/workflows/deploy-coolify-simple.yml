@@ -1,13 +1,9 @@
-name: Simple Coolify Deploy
+name: Manual Coolify Deploy
 
 # This is a simpler version that just triggers Coolify to rebuild from your repository
 # Use this if you want Coolify to handle the building instead of GitHub Actions
 
 on:
-  push:
-    branches:
-      - main
-      - master
   workflow_dispatch:
 
 jobs:

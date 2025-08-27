@@ -37,6 +37,7 @@ This new vision for Archon replaces the old one (the agenteer). Archon used to b
 - **[Introduction Video](https://youtu.be/8pRc_s2VQIo)** - Getting started guide and vision for Archon
 - **[Archon Kanban Board](https://github.com/users/coleam00/projects/1)** - Where maintainers are managing issues/features
 - **[Dynamous AI Mastery](https://dynamous.ai)** - The birthplace of Archon - come join a vibrant community of other early AI adopters all helping each other transform their careers and businesses!
+- **Production deployment on Coolify (archon.v1su4.com)**: See COOLIFY_DEPLOYMENT.md for the current working setup, image tags, and routing notes.
 
 ## Quick Start
 
