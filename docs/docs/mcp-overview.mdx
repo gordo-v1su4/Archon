@@ -166,7 +166,7 @@ Connect your AI client to Archon's knowledge base:
 {
   "mcpServers": {
     "archon": {
-      "uri": "http://localhost:8051/sse"
+      "uri": "http://localhost:8051/mcp"
     }
   }
 }
@@ -174,7 +174,7 @@ Connect your AI client to Archon's knowledge base:
 
 **For Claude Code:**
 ```bash
-claude mcp add --transport sse archon http://localhost:8051/sse
+claude mcp add --transport http archon http://localhost:8051/mcp
 ```
 
 **For Windsurf:**
@@ -182,7 +182,7 @@ claude mcp add --transport sse archon http://localhost:8051/sse
 {
   "mcp.servers": {
     "archon": {
-      "uri": "http://localhost:8051/sse"
+      "uri": "http://localhost:8051/mcp"
     }
   }
 }

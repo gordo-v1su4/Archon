@@ -370,7 +370,10 @@ docker compose logs archon-agents
 docker compose exec archon-server env | grep -E "(SUPABASE|OPENAI)"
 
 # Check MCP server health
-curl http://localhost:8051/sse
+curl -i -X POST http://localhost:8051/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"1.0"},"id":1}'
 
 # Check API health
 curl http://localhost:8080/health

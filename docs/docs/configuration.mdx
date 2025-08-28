@@ -267,8 +267,11 @@ Socket.IO namespaces:
 # API Service
 curl http://localhost:8080/health
 
-# MCP Server (checks socket connectivity)
-curl http://localhost:8051/sse
+# MCP Server (JSON-RPC initialize over HTTP/SSE)
+curl -i -X POST http://localhost:8051/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"1.0"},"id":1}'
 
 # AI Agents Service
 curl http://localhost:8052/health
@@ -327,7 +330,7 @@ Once configured and running:
 
 - **Web Interface**: Access at `http://localhost:3737`
 - **API Documentation**: Available at `http://localhost:8080/docs`
-- **MCP Connection**: Use `http://localhost:8051/sse` in your IDE
+- **MCP Connection**: Use `http://localhost:8051/mcp` in your IDE (or `https://archon.v1su4.com/mcp` in production)
 - **AI Agents API**: Available at `http://localhost:8052/docs`
 
 <Admonition type="tip" title="Configuration Tips">

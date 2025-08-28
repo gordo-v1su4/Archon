@@ -199,20 +199,25 @@ export const MCPPage = () => {
 
   // Resolve the recommended MCP URL to display in IDE examples
   const resolveMcpUrl = () => {
+    // Production (behind Traefik) should expose the server at /mcp
     try {
       const origin = window?.location?.origin;
-      if (origin && !origin.includes('localhost')) {
-        // Use the current domain in production (Coolify/Traefik preserves /mcp)
+      if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
+        // In production the router strips /mcp and forwards to the container root
         return `${origin}/mcp`;
       }
     } catch (_) {
       // no-op, fall back to config below
     }
+
+    // Local/dev: FastMCP streamable-http expects clients to use the SSE endpoint
     if (config?.host && config?.port) {
       const protocol = config.port === 443 ? 'https' : 'http';
-      return `${protocol}://${config.host}:${config.port}/mcp`;
+      return `${protocol}://${config.host}:${config.port}/sse`;
     }
-    return 'http://localhost:8051/mcp';
+
+    // Safe fallback for local development
+    return 'http://localhost:8051/sse';
   };
 
   const generateCursorDeeplink = () => {
