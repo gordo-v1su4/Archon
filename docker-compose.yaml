@@ -1,6 +1,7 @@
+name: archon
 services:
   archon-frontend:
-    image: gordov1su4/archon-frontend:v7.1
+    image: gordov1su4/archon-frontend:v7.2
     environment:
       - VITE_API_URL=${VITE_API_URL}
       - ARCHON_MCP_PORT=${ARCHON_MCP_PORT:-443}
@@ -37,7 +38,7 @@ services:
       - traefik.http.services.archon-server.loadbalancer.server.port=8181
 
   archon-mcp:
-    image: gordov1su4/archon-mcp:v7.0
+    image: gordov1su4/archon-mcp:v7.1
     container_name: archon-mcp
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
@@ -58,6 +59,7 @@ services:
       - traefik.http.routers.archon-mcp.entryPoints=https
       - traefik.http.routers.archon-mcp.tls=true
       - traefik.http.routers.archon-mcp.tls.certresolver=letsencrypt
+      - traefik.http.routers.archon-mcp.priority=1000
       - traefik.http.services.archon-mcp.loadbalancer.server.port=8051
 
   archon-agents:

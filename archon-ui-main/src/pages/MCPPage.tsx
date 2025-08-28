@@ -267,12 +267,12 @@ export const MCPPage = () => {
         
       case 'cline':
       case 'kiro':
-        // Cline and Kiro use stdio transport with mcp-remote
+        // Cline and Kiro primarily use stdio transport. Example config launching a remote bridge.
         return JSON.stringify({
           mcpServers: {
             archon: {
-              command: "npx",
-              args: ["mcp-remote", mcpUrl]
+              command: "mcp-proxy",
+              args: ["--stdio", "--target-url", mcpUrl, "--target-headers", "Content-Type: application/json"]
             }
           }
         }, null, 2);
@@ -307,6 +307,12 @@ export const MCPPage = () => {
           }
         }, null, 2);
     }
+  };
+
+  // Helper: stdio proxy command for IDEs that require stdio transport
+  const getStdioProxyCommand = () => {
+    const mcpUrl = resolveMcpUrl();
+    return `mcp-proxy --stdio --target-url ${mcpUrl} --target-headers "Content-Type: application/json"`;
   };
 
   const getIDEInstructions = (ide: SupportedIDE) => {
@@ -698,6 +704,18 @@ export const MCPPage = () => {
                         }
                       </p>
                     </div>
+
+                    {/* Optional stdio proxy helper for stdio-only IDEs */}
+                    {(selectedIDE === 'cline' || selectedIDE === 'kiro') && (
+                      <div className="bg-gray-50 dark:bg-black/50 rounded-lg p-4 font-mono text-sm relative mt-3">
+                        <pre className="text-gray-600 dark:text-zinc-400 whitespace-pre-wrap">
+{getStdioProxyCommand()}
+                        </pre>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500 mt-3 font-sans">
+                          If your IDE requires stdio transport, launch this bridge locally and configure the IDE to run it as the MCP command.
+                        </p>
+                      </div>
+                    )}
                     
                     {/* One-click install button for Cursor */}
                     {selectedIDE === 'cursor' && serverStatus.status === 'running' && (

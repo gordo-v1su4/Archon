@@ -274,7 +274,7 @@ try:
         lifespan=lifespan,
         host=server_host,
         port=server_port,
-        streamable_http_path="/"
+        streamable_http_path="/mcp"
     )
     logger.info("✓ FastMCP server instance created successfully")
 
@@ -506,7 +506,7 @@ def main():
 
         logger.info("🚀 Starting Archon MCP Server")
         logger.info("   Mode: Streamable HTTP")
-        logger.info(f"   URL: http://{server_host}:{server_port}/sse")
+        logger.info(f"   URL: http://{server_host}:{server_port}/mcp")
 
         mcp_logger.info("🔥 Logfire initialized for MCP server")
         mcp_logger.info(f"🌟 Starting MCP server - host={server_host}, port={server_port}")
