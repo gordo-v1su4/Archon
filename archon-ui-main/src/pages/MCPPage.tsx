@@ -135,13 +135,22 @@ export const MCPPage = () => {
     } catch (error) {
       console.error('Failed to load configuration:', error);
       // Set a default config if loading fails
-      // Try to detect port from environment or use default
-      const defaultPort = import.meta.env.ARCHON_MCP_PORT || 8051;
-      setConfig({
-        transport: 'http',
-        host: 'localhost',
-        port: typeof defaultPort === 'string' ? parseInt(defaultPort) : defaultPort
-      });
+      // Derive from current location for hosted deployment (no localhost)
+      try {
+        const loc = window?.location;
+        const defaultPort = loc?.protocol === 'https:' ? 443 : 80;
+        setConfig({
+          transport: 'http',
+          host: loc?.hostname || 'archon.v1su4.com',
+          port: defaultPort
+        });
+      } catch (_) {
+        setConfig({
+          transport: 'http',
+          host: 'archon.v1su4.com',
+          port: 443
+        });
+      }
     }
   };
 
@@ -199,25 +208,27 @@ export const MCPPage = () => {
 
   // Resolve the recommended MCP URL to display in IDE examples
   const resolveMcpUrl = () => {
-    // Production (behind Traefik) should expose the server at /mcp
+    // Prefer hosted URL derived from existing VITE_API_URL if provided
+    const apiUrl = (import.meta as any)?.env?.VITE_API_URL as string | undefined;
+    if (apiUrl) {
+      try {
+        const u = new URL(apiUrl);
+        return `${u.protocol}//${u.host}/mcp`;
+      } catch (_) {
+        // fall through
+      }
+    }
+
+    // Otherwise use current origin (hosted in Coolify) and append /mcp
     try {
       const origin = window?.location?.origin;
-      if (origin && !origin.includes('localhost') && !origin.includes('127.0.0.1')) {
-        // In production the router strips /mcp and forwards to the container root
-        return `${origin}/mcp`;
-      }
+      if (origin) return `${origin}/mcp`;
     } catch (_) {
-      // no-op, fall back to config below
+      // ignore
     }
 
-    // Local/dev: FastMCP streamable-http expects clients to use the SSE endpoint
-    if (config?.host && config?.port) {
-      const protocol = config.port === 443 ? 'https' : 'http';
-      return `${protocol}://${config.host}:${config.port}/sse`;
-    }
-
-    // Safe fallback for local development
-    return 'http://localhost:8051/sse';
+    // Final fallback: relative path (never localhost)
+    return '/mcp';
   };
 
   const generateCursorDeeplink = () => {

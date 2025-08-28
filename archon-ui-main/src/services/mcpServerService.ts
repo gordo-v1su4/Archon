@@ -124,12 +124,22 @@ class MCPServerService {
     const response = await fetch(`${this.baseUrl}/api/mcp/config`);
 
     if (!response.ok) {
-      // Return default config if endpoint doesn't exist yet
-      return {
-        transport: 'sse',
-        host: 'localhost',
-        port: 8051
-      };
+      // Return a hosted-aware default if endpoint doesn't exist yet
+      try {
+        const loc = window?.location;
+        const isHttps = loc?.protocol === 'https:';
+        return {
+          transport: 'http',
+          host: loc?.hostname || 'archon.v1su4.com',
+          port: isHttps ? 443 : 80
+        };
+      } catch (_) {
+        return {
+          transport: 'http',
+          host: 'archon.v1su4.com',
+          port: 443
+        };
+      }
     }
 
     return response.json();

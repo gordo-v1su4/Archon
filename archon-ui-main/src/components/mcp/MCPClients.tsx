@@ -531,7 +531,7 @@ const AddClientModal: React.FC<AddClientModalProps> = ({ isOpen, onClose, onSubm
               value={formData.url}
               onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
               className="w-full px-3 py-2 bg-white/50 dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-              placeholder="http://host.docker.internal:8051/mcp" 
+              placeholder="https://archon.v1su4.com/mcp" 
               required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -763,7 +763,7 @@ const EditClientDrawer: React.FC<EditClientDrawerProps> = ({ client, isOpen, onC
               value={editFormData.url}
               onChange={(e) => setEditFormData(prev => ({ ...prev, url: e.target.value }))}
               className="w-full px-3 py-2 bg-white/50 dark:bg-black/50 border border-gray-300 dark:border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500" 
-              placeholder="http://host.docker.internal:8051/mcp" 
+              placeholder="https://archon.v1su4.com/mcp" 
               required
             />
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
