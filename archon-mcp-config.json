@@ -1,0 +1,9 @@
+{
+  "archon-mcp": {
+    "command": "mcp-remote",
+    "args": [
+      "https://archon.v1su4.com/mcp",
+      "--stdio"
+    ]
+  }
+}
