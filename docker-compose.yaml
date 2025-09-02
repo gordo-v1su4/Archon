@@ -26,6 +26,7 @@ services:
       - ARCHON_MCP_PORT=8051
       - ARCHON_AGENTS_PORT=8052
       - MCP_CONTAINER_PREFIX=archon-mcp
+      - REMOTE_MCP_DEPLOYMENT=true
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

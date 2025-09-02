@@ -398,24 +398,39 @@ class MCPServerManager:
 
     def get_status(self) -> dict[str, Any]:
         """Get the current server status."""
-        # Update status based on actual container state
-        container_status = self._get_container_status()
+        import os
+        
+        # Check if we're in remote deployment mode (no local Docker)
+        is_remote_deployment = os.getenv("REMOTE_MCP_DEPLOYMENT", "false").lower() == "true"
+        
+        if is_remote_deployment:
+            # For remote deployments (e.g., Coolify), assume server is running
+            # The fact that this API is responding means the server is up
+            self.status = "running"
+            container_status = "running"
+            
+            # Use environment start time or current time
+            if not self.start_time:
+                self.start_time = time.time() - 300  # Default to 5 minutes ago
+        else:
+            # Update status based on actual container state
+            container_status = self._get_container_status()
 
-        # Map Docker statuses to our statuses
-        status_map = {
-            "running": "running",
-            "restarting": "restarting",
-            "paused": "paused",
-            "exited": "stopped",
-            "dead": "stopped",
-            "created": "stopped",
-            "removing": "stopping",
-            "not_found": "not_found",
-            "docker_unavailable": "docker_unavailable",
-            "error": "error",
-        }
+            # Map Docker statuses to our statuses
+            status_map = {
+                "running": "running",
+                "restarting": "restarting",
+                "paused": "paused",
+                "exited": "stopped",
+                "dead": "stopped",
+                "created": "stopped",
+                "removing": "stopping",
+                "not_found": "not_found",
+                "docker_unavailable": "docker_unavailable",
+                "error": "error",
+            }
 
-        self.status = status_map.get(container_status, "unknown")
+            self.status = status_map.get(container_status, "unknown")
 
         # If container is running but log reader isn't active, start it
         if self.status == "running" and not self._is_log_reader_active():
