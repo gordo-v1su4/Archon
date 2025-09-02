@@ -16,7 +16,7 @@ services:
       - traefik.http.services.archon-frontend.loadbalancer.server.port=3737
 
   archon-server:
-    image: gordov1su4/archon-server:v7.0
+    image: gordov1su4/archon-server:v7.1
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
